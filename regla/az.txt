@@ -1,0 +1,1615 @@
+/*
+FALTA HACER LAS FUNCIONES DEL ADMINISTRADOR Y LAS DEL MEDICO
+LAS DE LA SECRETARIA YA ESTA LA MAYORIA - ALGUNAS OPCIONES TAL VEZ SE LE QUITEN Y SE LE DEN AL ADMINISTRADOR
+* FALTA FACTURA (En el "void Reporte_pedidos()" hay un ejemplo de como podes sacar la factura
+*REPORTES NO SE COMO MAS SACAR INTENTA POR NOMBRE CON UN GETLINE(CIN,NOMNRE) A MI ME FUCIONO PERO LUEGO ME DIO FALLA
+*HAY QUE AREGLAR BIEN LOS MENUS
+*EL REPORTEADOR DEL CLIENTES.TXT HAY QUE HACERLO (proba con nomnbre y por fecha) ""por ID Y EDAD FIJOS VAN"" SON DOS POR SEPARADO
+*LO DEMAS NO ME RECUERDO PER AHI MIRA HAHA
+* Los reportes tiene que sacar lo datos en forma de reporte como si fuera tipo facruta eso con el xy lo podes arreglar
+*/
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cstdlib>
+#include<windows.h>
+
+#pragma warning(disable: 4996)
+#pragma warning(supress: 4996)
+
+using namespace std;
+
+ofstream Guardar;// ofstream escribe en el archivo
+ifstream Leer;//if estream lee lo que esta en el achivo
+ifstream Leer1;//if estream lee lo que esta en el achivo
+ofstream Temp;// ofstream escribe en el archivo
+string nombre_cliente2;
+
+void gotoxy(int x, int y)
+{
+	HANDLE hcon;
+	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD dwpas;
+	dwpas.X = x;
+	dwpas.Y = y;
+	SetConsoleCursorPosition(hcon, dwpas);
+}
+
+// de aca para abajo si se usan
+int  id_buscar, contraseña_1, opcion = 0, Bid, clave_buscar, cod_exam_buscar, id_buscar_pedidos, 
+opcion_reporte_1, opcion_reporte_2, opcion_reporte_3, edad_buscar, opcion_pedidos,numero_de_factura1 = 1, 
+contador,fila = 8, opcion_examen,numero_de_factura_pedidos = 100, correcto=10, opcion_agregar_si_no, 
+numero_de_serie_pedido2=10, contador_linea,diafa=0,mesfa=0,añofa=0;
+
+void login(), menu_cliente(), leerarchivo(), ModificarUsuario(), GuardarUsuario(),
+BuscarUsuario(), Reporte_pedidos(), BuscarUsuario1(), EliminarUsuario(), ListadoUsuarios(), reportes(), 
+reporte_por_id_examen(),reportes_por_pedidos(), reporte_por_edad(), agregar_pedido2(), BuscarUsuario56(), contador_factura(), 
+guardar_pedido(), eliminar_numero_de_orden(), eliminar(), eliminar_factura(), leerarchivo_2(), mostrar_expediente(), mostrar_medidos56();
+
+string nombrepe;
+int id_clientepe;
+int edadpe;
+string fecha_nacimientope;//numero de telefono
+int diape;
+int mespe;
+int añope;
+int nitpe;
+string tipo_de_sangrepe;
+string alergicope;//si no
+
+
+string buscar_por;
+string nombreB;
+int id_clienteB;
+int edadB;
+string fecha_nacimientoB;
+
+
+
+struct administradores
+{
+	int contraseña;
+	int id_usuario;
+	char nombread[30];
+	char roladmon[30];
+}administradores;
+struct clientes
+{
+	char nombre[30];
+	int id_cliente;
+	int edad;
+	char fecha_nacimiento[8];//numero de telefono
+	int dia;
+	int mes;
+	int año;
+	int numero_de_factura1;
+	int nit;
+	char tipo_de_sangre[4];
+	char alergico[2];//si no
+
+	char nuevoNombre[30];
+	int nuevaEdad;
+	char nuevaFdnacimiento[8];//numero de telefono
+	int nuevo_dia;
+	int nuevo_mes;
+	int nuevo_año;
+	int nuevo_nit;
+	char nuevo_tipodesangre[4];
+	char nuevo_alergico[2];
+	
+}clientes;
+struct pedidos
+{
+	char nom_examenp[60];
+	int codigo_examenp;
+	float precio_examenp;
+	char nombre_Clientep[30];
+	int id_clientep;
+	int edad_clientep;
+	char fecha_clientep[9];
+}pedidos;
+struct catalogo1
+{
+	char examen[80];
+	int id_exam;
+	float precio_exam;
+}catalogo1;
+struct pedidos2
+{
+	string nombre;
+	int id_cliente;
+	int edad;
+	string fecha_nacimiento;//numero de telefono
+	int dia;
+	int mes;
+	int año;
+	int nit;
+	string tipo_de_sangre;
+	string alergico;//si no
+
+	char examen[80];
+	int id_exam;
+	float precio_exam;
+
+	int numero_de_factura1;
+	int numero_de_serie_pedido;
+
+	int diape;
+	int mespe;
+	int añope;
+}pedidos2;
+
+//Menu Principal
+int main()
+{
+	do {
+		system("cls");
+		cout << "Escoja una Opcion" << endl;
+		cout << "Usuarios Administradores----(1)" << endl;
+		cout << "Clientes---------------------(2)" << endl;
+		cout << "Salir del Sistema------------(3)" << endl;
+		cin >> opcion;
+		switch (opcion)
+		{
+		case 1:
+			system("cls");
+			login();
+			break;
+		case 2:
+			system("cls");
+			menu_cliente();
+			break;
+		case 3:
+			system("cls");
+			cout << "Saliendo del Sistema" << endl;
+			system("PAUSE");
+			break;
+		default:
+			system("cls");
+			cout << "Opcion No Valida" << endl;
+			system("PAUSE");
+			break;
+		}
+	} while (opcion != 3);
+	return 0;
+}
+
+// Menu completo al cual tiene acceso el cliente
+void menu_cliente()
+{
+	cout << endl << endl;
+	do {
+		system("cls");
+		cout << "=====BIENVENIDO AL SISTEMA DEL LABORATORIO MATA_SANOS=====\n\n";
+		cout << "Catalogo de Examenes-----------------------(1)" << endl;
+		cout << "Ingresar Pedido de Examenes----------------(2)" << endl;
+		cout << "Modificar Pedido de Examenes---------------(3)" << endl;
+		cout << "Ver Pedido de Examenes---------------------(4)" << endl;
+		cout << "Expediente Clinico-------------------------(5)" << endl;
+		cout << "Facturar Pedido----------------------------(6)" << endl;
+		cout << "Cancelar y Salir---------------------------(7)" << endl;
+		cin >> opcion;
+		switch (opcion)
+		{
+		case 1:
+			system("cls");
+			leerarchivo();
+			system("pause");
+			break;
+		case 2:
+			system("cls");
+			//BuscarUsuario1();
+			contador_factura();
+			BuscarUsuario56();
+			break;
+		case 3:
+
+			break;
+		case 4:
+			Reporte_pedidos();
+			break;
+		case 5:
+			mostrar_expediente();
+			break;
+		}
+	} while (opcion != 7);
+}
+
+//Menu al cual tiene acceso la secretaria
+void menu_secre()
+{
+	do {
+		system("cls");
+		cout << "==========BIENVENIDA AL SISTEMA==========\n\n";
+		cout << "Ingresar Nuevo Cliente-----------------(1)" << endl;
+		cout << "Mostras Clientes-----------------------(2)" << endl;
+		cout << "Buscar Cliente por codigo--------------(3)" << endl;
+		cout << "Modificar Clientes---------------------(4)" << endl;
+		cout << "Eliminar Cliente-----------------------(5)" << endl;
+		cout << "Ver Pedido Del Cliente-----------------(6)" << endl;
+		//cout << "Entrega De Resultados------------------(7)" << endl;
+		cout << "Generar Reporte------------------------(8)" << endl;
+		cout << "Salir del Sistema----------------------(9)" << endl;
+		cin >> opcion;
+		switch (opcion)
+		{
+		case 1:
+			GuardarUsuario();
+			//agregar un nuevo cliente
+			break;
+		case 2:
+			ListadoUsuarios();
+			//busca a un usuario espesifico para ver si existe
+			break;
+		case 3:
+			BuscarUsuario();
+			//Buscar un usuario espesico por id
+			break;
+		case 4:
+			ModificarUsuario();
+			//modifica el nombre de un usuario por el id
+			break;
+		case 5:
+			EliminarUsuario();
+			//elimina un usuario por medio del id
+			break;
+i		case 6:
+			Reporte_pedidos();
+			//Puede ver cules son los examenes que el cliente pidio se le realizaran
+			break;
+		case 7:
+			mostrar_medidos56();
+			//falta
+			break;
+		case 8:
+			reportes();
+			break;
+		case 9:
+			cout << "...Saliendo Del Sistema..." << endl;
+			break;
+		default:
+			cout << "Ingrese una opcion valida" << endl;
+			break;
+		}
+
+	} while (opcion != 9);
+}
+//Funcion que Guarda los clientes Nuevos 
+void GuardarUsuario()
+{
+	system("cls");
+	Guardar.open("Clientes.txt", ios::app);
+	if (Guardar.is_open())
+	{
+		system("cls");
+		gotoxy(35, 10); cout << "------INGRESO DE Cliente------\n\n";
+		gotoxy(35, 11); cout << "Ingrese Nombre" << endl;
+		gotoxy(35, 12); cin >> clientes.nombre;
+		gotoxy(35, 13); cout << "lngrese Clave" << endl;
+		gotoxy(35, 14); cin >> clientes.id_cliente;
+		gotoxy(35, 15); cout << "Ingrese su edad" << endl;
+		gotoxy(35, 16); cin >> clientes.edad;
+		gotoxy(35, 17); cout << "Ingrese Numero de Telefono" << endl;
+		gotoxy(35, 18); cin >> clientes.fecha_nacimiento;
+		gotoxy(35, 19); cout << "ingrese fecha (DD/MM/AAAA)" << endl;
+		gotoxy(35, 20); cin >> clientes.dia;
+		gotoxy(37, 20); cout << "/";
+		gotoxy(38, 20); cin >> clientes.mes;
+		gotoxy(40, 20); cout << "/";
+		gotoxy(41, 20); cin >> clientes.año;
+		gotoxy(35, 21); cout << "Ingrese numero de Nit" << endl;
+		gotoxy(35, 22); cin >> clientes.nit;
+		gotoxy(35, 23); cout << "Ingrese tipo de sangre" << endl;
+		gotoxy(35, 24); cin >> clientes.tipo_de_sangre;
+		gotoxy(35, 25); cout << "Ingrese si es alergico si/no" << endl;
+		gotoxy(35, 26); cin >> clientes.alergico;
+
+
+		clientes.numero_de_factura1 = numero_de_factura1 + 1;
+		numero_de_factura1++;
+
+		Guardar << clientes.nombre << "\t" << clientes.id_cliente << "\t" << clientes.edad << "\t"
+			<< clientes.fecha_nacimiento << "\t" << clientes.dia << "\t" << clientes.mes << "\t"
+			<< clientes.año << "\t" << clientes.nit << "\t" << clientes.tipo_de_sangre << "\t" << clientes.alergico << endl;
+		gotoxy(35, 27); cout << " . . . . usuario agregado exitosamente. . . . \n";
+
+		Guardar.close();
+		gotoxy(35, 29); system("pause");
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+}
+
+//Funcion que despliega un Listado de tados Los usuarios
+void ListadoUsuarios()
+{
+	system("cls");
+	Leer.open("Clientes.txt", ios::in);
+	if (Leer.is_open())
+	{
+		contador = 3;
+
+		Leer >> clientes.nombre;
+
+		cout << "--<<***************** LISTADO DE USUARIO EXISTENTES *****************>>--\n\n";
+		while (!Leer.eof())
+		{
+			Leer >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento >> clientes.dia >> clientes.mes >> clientes.año >> clientes.nit >> clientes.tipo_de_sangre >> clientes.alergico;
+			if (!Leer.eof())
+			{
+				contador++;
+
+				gotoxy(fila, contador); cout << "Nombre... " << clientes.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << clientes.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << clientes.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << clientes.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << clientes.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << clientes.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << clientes.alergico; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador++;
+
+			}
+			Leer >> clientes.nombre;
+		}
+		system("pause");
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+}
+
+//Funcion que busca a un usuario por id
+void BuscarUsuario()
+{
+	system("cls");
+	Leer.open("Clientes.txt");
+	if (Leer.is_open())
+	{
+		contador = 3;
+		Leer >> clientes.nombre;
+		bool encontrado = false;
+		cout << "Ingrese clave a buscar" << endl;
+		cin >> Bid;
+		while (!Leer.eof())
+		{
+			Leer >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento >> clientes.dia >> clientes.mes >> clientes.año >> clientes.nit >> clientes.tipo_de_sangre >> clientes.alergico;
+			if (clientes.id_cliente == Bid)
+			{
+				contador++;
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << clientes.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << clientes.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << clientes.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << clientes.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << clientes.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << clientes.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << clientes.alergico; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador++;
+			}
+			Leer >> clientes.nombre;
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+//Funcion que elimina un usario
+void EliminarUsuario()
+{
+	system("cls");
+	Leer.open("Clientes.txt");
+	Temp.open("Temp.txt");
+	if (Leer.is_open() && Temp.is_open())
+	{
+		contador = 3;
+		Leer >> clientes.nombre;
+		bool encontrado = false;
+		cout << "Ingrese clave a eliminar... "; cin >> Bid; cout << endl << endl;
+
+		while (!Leer.eof())
+		{
+			Leer >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento >> clientes.dia >> clientes.mes >> clientes.año >> clientes.nit >> clientes.tipo_de_sangre >> clientes.alergico;
+			if (clientes.id_cliente == Bid)
+			{
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << clientes.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << clientes.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << clientes.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << clientes.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << clientes.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << clientes.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << clientes.alergico; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador++;
+				gotoxy(fila, contador); cout << "Eliminado..." << endl; contador++;
+			}
+			else
+			{
+				Temp << clientes.nombre << "\t" << clientes.id_cliente << "\t" << clientes.edad << "\t"
+					<< clientes.fecha_nacimiento << "\t" << clientes.dia << "\t" << clientes.mes << "\t"
+					<< clientes.año << "\t" << clientes.nit << "\t" << clientes.tipo_de_sangre << "\t" << clientes.alergico << endl;
+			}
+			Leer >> clientes.nombre;
+
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+		Temp.close();
+		remove("Clientes.txt");
+		rename("Temp.txt", "Clientes.txt");
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+//Funcion que modifica un usuario  // ya esta 
+void ModificarUsuario()
+{
+	system("cls");
+	Leer.open("Clientes.txt");
+	Temp.open("Temp.txt");
+
+	if (Leer.is_open() && Temp.is_open())
+	{
+		contador = 3;
+		Leer >> clientes.nombre;
+		bool encontrado = false;
+		cout << "Ingrese clave a Modificar... "; cin >> Bid; cout << endl << endl;
+
+		while (!Leer.eof())
+		{
+			Leer >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento >> clientes.dia >> clientes.mes >> clientes.año
+				>> clientes.nit >> clientes.tipo_de_sangre >> clientes.alergico;
+			if (clientes.id_cliente == Bid)
+			{
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << clientes.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << clientes.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << clientes.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << clientes.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << clientes.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << clientes.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << clientes.alergico; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador + 2;
+
+				gotoxy(fila, contador); cout << "-------------------------------------------------" << endl; contador++;
+				gotoxy(fila, contador); cout << "Ingrese nuevo Nombre... "; cin >> clientes.nuevoNombre; contador++;
+				gotoxy(fila, contador); cout << "Clave (No modificable)... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Ingrese nueva Edad... "; cin >> clientes.nuevaEdad; contador++;
+				gotoxy(fila, contador); cout << "Ingrese nuevo Numero de Telefono ... "; cin >> clientes.nuevaFdnacimiento; contador++;
+
+
+				gotoxy(8, contador); cout << "ingrese nueva fecha (DD/MM/AAAA)";
+				gotoxy(43, contador); cin >> clientes.nuevo_dia; fila + 3;
+				gotoxy(46, contador); cout << "/"; fila + 2;
+				gotoxy(48, contador); cin >> clientes.nuevo_mes; fila + 3;
+				gotoxy(51, contador); cout << "/"; fila + 2;
+				gotoxy(53, contador); cin >> clientes.nuevo_año; contador++;
+
+
+				gotoxy(fila, contador); cout << "Ingrese nuevo Nit ... "; cin >> clientes.nuevo_nit; contador++;
+				gotoxy(fila, contador); cout << "Ingrese nuevo Tipo de sangre ... "; cin >> clientes.nuevo_tipodesangre; contador++;
+				gotoxy(fila, contador); cout << "Ingrese si es alergico ... "; cin >> clientes.nuevo_alergico; contador++;
+				gotoxy(fila, contador); cout << "-------------------------------------------------" << endl; contador++;
+				Temp << clientes.nuevoNombre << "\t" << clientes.id_cliente << "\t" << clientes.nuevaEdad << "\t" << clientes.nuevaFdnacimiento << "\t" << clientes.nuevo_dia << "\t" << clientes.nuevo_mes
+					<< "\t" << clientes.nuevo_año << "\t" << clientes.nuevo_nit << "\t" << clientes.nuevo_tipodesangre << "\t" << clientes.nuevo_alergico << endl;
+				gotoxy(fila, contador); cout << "¡--------Cliente modificado Exitosamente--------!" << endl; contador++;
+			}
+			else
+			{
+				Temp << clientes.nombre << "\t" << clientes.id_cliente << "\t" << clientes.edad << "\t"
+					<< clientes.fecha_nacimiento << "\t" << clientes.dia << "\t" << clientes.mes << "\t"
+					<< clientes.año << "\t" << clientes.nit << "\t" << clientes.tipo_de_sangre << "\t" << clientes.alergico << endl;
+			}
+			Leer >> clientes.nombre;
+		}
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+
+		Leer.close();
+		Temp.close();
+		remove("Clientes.txt");
+		rename("Temp.txt", "Clientes.txt");
+	}
+	else
+	{
+
+		cout << "Error en archiva\n";
+	}
+	gotoxy(fila, contador); system("pause");
+}
+
+//Este funcion lee el catalogo completo por lineas // ya esta
+void leerarchivo()
+{
+	Leer.open("Catalogo.txt", ios::in);
+	if (Leer.is_open()) {
+		string linea;
+		while (getline(Leer, linea))
+		{
+			cout << linea << endl;
+		}
+		Leer.close();
+	}
+}
+
+void login()
+{
+	system("cls");
+	Leer.open("Usuarios.txt");
+	if (Leer.is_open())
+	{
+		bool encontrado = false;
+		cout << "Ingrese su ID de Usuario" << endl;
+		cin >> id_buscar;
+		cout << "Ingrese la Contrasena" << endl;
+		cin >> contraseña_1;
+
+		while (!Leer.eof())// REPETIR HASTA QUE YA NO HAYA NINGUN CARACTER
+		{
+			Leer >> administradores.contraseña >> administradores.id_usuario >> administradores.nombread >> administradores.roladmon;
+			if (administradores.id_usuario == id_buscar && administradores.contraseña == contraseña_1)
+			{
+				encontrado = true;
+				system("cls");
+				cout << "****************** BIENVENIDO ******************\n";
+				cout << "Id Usuario... " << administradores.id_usuario << endl;
+				cout << "Nombre... " << administradores.nombread << endl;
+				cout << "Usted entro como... " << administradores.roladmon << endl;
+				cout << "................................................\n\n";
+				system("pause");
+			}
+		}
+		if (encontrado == true)
+		{
+			switch (contraseña_1)
+			{
+			case 1234:
+				system("cls");
+				menu_secre();
+				//menu secretaria 
+				break;
+			case 4321:
+				system("cls");
+				cout << "Este es el admin tiene permiso para todo " << endl;
+				break;
+			case 1345:
+				system("cls");
+				cout << "Este es el medico" << endl;
+				break;
+			default:
+				//
+				break;
+			}
+		}
+
+		if (encontrado == false)
+		{
+			system("cls");
+			cout << "************Intente de nuevo***************" << endl;
+			cout << "** ID de usuario o Contraseña Incorrecta **" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		system("cls");
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+// Login para poder entrar como admin
+
+//Esta funcion mide un ID de usuario y si lo hay luego realiza el pedido y lo guarda en pedidos.txt
+void BuscarUsuario1()
+{
+	system("cls");
+	Leer.open("Clientes.txt");
+	if (Leer.is_open())
+	{
+		Leer >> clientes.nombre;
+		bool encontrado_cliente = false;
+		cout << "Ingrese su clave de Usuario" << endl;
+
+		cin >> clave_buscar;
+		while (!Leer.eof())
+		{
+			Leer  >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento;
+			if (clientes.id_cliente == clave_buscar)
+			{
+				encontrado_cliente = true;
+				cout << "*****Cliente encontrado*****\n";
+				cout << "Nombre... " << clientes.nombre << endl;
+				cout << "Clave... " << clientes.id_cliente << endl;
+				cout << "Edad... " << clientes.edad << endl;
+				cout << "Fecha de Nacimiento... " << clientes.fecha_nacimiento << endl << endl;
+
+				Leer1.open("Catalogo1.txt");
+				if (Leer1.is_open())
+				{
+					Leer1 >> catalogo1.examen;
+					bool encontrado_examen = false;
+					cout << "Ingrese el codigo del examen que se quiere realizar... ";
+					cin >> cod_exam_buscar;
+					cout << endl;
+
+					while (!Leer1.eof())
+					{
+						Leer1  >> catalogo1.id_exam >> catalogo1.precio_exam;
+						if (catalogo1.id_exam == cod_exam_buscar)
+						{
+							encontrado_examen = true;
+							cout << "***** El examen que se desea relir es el siguiente *****\n";
+							cout << "Nombre de Examen ... " << catalogo1.examen << endl;
+							cout << "Clave del Examen ... " << catalogo1.id_exam << endl;
+							cout << "Precio del Examen ... Q" << catalogo1.precio_exam << endl;
+							cout << "Si desea realizarse este examen precione 1 de lo contrario precione 2" << endl;
+							cin >> opcion_pedidos;
+
+							if (opcion_pedidos == 1)
+							{
+								Guardar.open("Pedidos.txt", ios::app);
+								if (Guardar.is_open())
+								{
+									Guardar << catalogo1.examen << "\t" << catalogo1.id_exam << "\t" << catalogo1.precio_exam << "\t" << clientes.nombre << "\t" << clientes.id_cliente << "\t" << clientes.edad << "\t" << clientes.fecha_nacimiento << endl;
+									cout << " . . . . Pedido agregado. . . . \n\n";
+								}
+							}
+							else
+							{
+								cout << "Pedido Eliminado" << endl;
+							}
+	
+						}
+						Leer1 >> catalogo1.examen;
+					}
+
+					if (encontrado_examen == false)
+					{
+						cout << "Codigo de examen no encontrado\t Intente de nuevo" << endl;
+					}
+				}
+				else
+				{
+					cout << "Error en archivo\n";
+				}//
+			}
+			Leer >> clientes.nombre;
+		}
+		Leer1.close();
+		Guardar.close();
+		Leer.close();
+
+		if (encontrado_cliente == false)
+		{
+			cout << "El cliente no Existe" << endl;
+			cout << "Si no tiene ninguna clave de ID dirijase con la secretaria para que le asigne una " << endl;
+		}
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+
+}
+
+//Da los pedidos que el cliente ha solicitado por medio del ID del cliente
+void Reporte_pedidos()
+{
+	float sumaprecio = 0;
+	system("cls");
+	Leer.open("pedidos2.txt");
+	if (Leer.is_open())
+	{
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		cout << "Ingrese el codigo de Cliente" << endl;
+		cin >> id_buscar_pedidos;
+		cout << "********************Este cliente pidio la realizacion del pedido********************\n\n";
+		while (!Leer.eof())
+		{
+			
+
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+
+			if (pedidos2.id_cliente == id_buscar_pedidos)
+			{
+				encontrado = true;
+
+				cout << "Nombre del examen..." << pedidos2.examen << endl;
+				cout << "Clave de examen..." << pedidos2.id_exam << endl;
+				cout << "Precio del examen... Q" << pedidos2.precio_exam << endl;
+				cout << "Fecha examen... " << pedidos2.diape << "/" << pedidos2.mespe << "/" << pedidos2.añope;
+ 				/*
+				cout << "Datos del Cliente." << endl;
+				cout << "Nombre del cliente..." << pedidos.nombre_Clientep << endl;
+				cout << "Clave del Cliente... " << pedidos.id_clientep << endl;
+				cout << "Edad del Cliente... " << pedidos.edad_clientep << endl;
+				cout << "Fecha de Nacimiento... " << pedidos.fecha_clientep << endl;
+				*/
+				cout << "=====================================================================================" << endl;
+				sumaprecio = sumaprecio + pedidos2.precio_exam;
+				nombre_cliente2 = pedidos2.nombre;
+				//EJEMPLO DE COMO PODES HACER LA FACTURA ARRIBA 
+			}
+			Leer >> pedidos2.nombre;
+		}
+		if (encontrado==true)
+		{
+			cout << "Cuenta del cliente... " << nombre_cliente2 << endl;
+			cout << "El total a pagar es... Q" << sumaprecio << endl;
+			system("pause");
+		
+		}
+		
+		if (encontrado == true)
+		{
+			system("pause");
+			menu_cliente();
+		}
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+//Este es el menu del administrador el cual tiene acceso a todo
+void menu_admin()
+{
+	do {
+		cout << "=====BIENVENIDO AL SISTEMA=====\n\n";
+		cout << "Opciones de Clientes--------(2)" << endl;
+		cout << "Ver Reportes----------------(3)" << endl;
+		cout << "Ver Facturas----------------(4)" << endl;
+		cout << "Ver Examenes----------------(5)" << endl;
+		cout << "Salir del Sistema-----------(6)" << endl;
+		cin >> opcion;
+		switch (opcion)
+		{
+		case 1:
+			system("cls");
+			menu_secre();
+			break;
+		case 2:
+			system("cls");
+
+			break;
+		case 3:
+			system("cls");
+
+			break;
+		case 4:
+			system("cls");
+
+			break;
+		default:
+			system("cls");
+			cout << "...SALIENDO DEL SISTEMA...\n\n\n";
+			break;
+		}
+	} while (opcion != 5);
+	system("PAUSE");
+}
+
+//En este solo dice si se quiere reporte por txt de pedidos o de clientes
+void reportes()
+{
+	do
+	{
+		cout << "Ingrese la opcion por la cual desea hacer el reporte" << endl;
+		cout << "Por Cliente.................(1)" << endl;
+		cout << "Por Pedidos.................(2)" << endl;
+		cout << "Para Salir..................(3)" << endl;
+		cin >> opcion_reporte_1;
+
+		switch (opcion_reporte_1)
+		{
+		case 1:
+			break;
+		case 2:
+			//
+			reportes_por_pedidos();
+			break;
+		default:
+			cout << " ERROR\n Intente de nuevo" << endl;
+			system("pause");
+			break;
+		}
+	} while (opcion_reporte_1 != 3);
+}
+
+//Este es el reporteador de pedidos.txt
+void reportes_por_pedidos()
+{
+
+	do
+	{
+		system("cls");
+		cout << "Si desea reporte por ID de examen...............(1)" << endl;
+		//cout << "Si desea reporte por Nombre del Cliente.........(2)" << endl;
+		cout << "Si desea reporte por ID de Cliente..............(3)" << endl;
+		cout << "Si desea reporte por Edad de Clientes...........(4)" << endl;
+		//cout << "Si desea reporte por Fecha de Nacimiento........(6)" << endl;
+		cout << "para salir......................................(10)" << endl;
+		cin >> opcion_reporte_2;
+
+		switch (opcion_reporte_2)
+		{
+		case 1:
+			//ya esta listo
+			reporte_por_id_examen();
+			break;
+		case 3:
+			//hay que modificarlo
+			Reporte_pedidos();
+			break;
+		case 4:
+			//ya esta listo
+			reporte_por_edad();
+			break;
+
+		default:
+			break;
+		}
+	} while (opcion_reporte_2 != 10);
+
+}
+
+//Reporte por el ID del examen
+void reporte_por_id_examen()
+{
+			system("cls");
+			Leer.open("Pedidos.txt");
+			if (Leer.is_open())
+			{
+				Leer >> pedidos.nom_examenp;
+				bool encontrado = false;
+				cout << "Ingrese el ID del examen " << endl;
+				cin >> opcion_reporte_3;
+				cout << "********************Este ID lo pidieron********************\n";
+				while (!Leer.eof())
+				{
+
+					Leer >> pedidos.codigo_examenp >> pedidos.precio_examenp >> pedidos.nombre_Clientep >> pedidos.id_clientep >> pedidos.edad_clientep >> pedidos.fecha_clientep;
+
+					if (pedidos.codigo_examenp == opcion_reporte_3)
+					{
+						encontrado = true;
+						cout << "=====================================================================================" << endl;
+						cout << "Nombre del examen..." << pedidos.nom_examenp << endl;
+						cout << "Clave de examen..." << pedidos.codigo_examenp << endl;
+						cout << "Precio del examen..." << pedidos.precio_examenp << endl;
+						cout << "Datos del Cliente." << endl;
+						cout << "Nombre del cliente..." << pedidos.nombre_Clientep << endl;
+						cout << "Clave del Cliente... " << pedidos.id_clientep << endl;
+						cout << "Edad del Cliente... " << pedidos.edad_clientep << endl;
+						cout << "Fecha de Nacimiento... " << pedidos.fecha_clientep << endl;
+						cout << "=====================================================================================" << endl;
+					}
+					Leer >> pedidos.nom_examenp;
+				}
+
+				if (encontrado == false)
+				{
+					cout << "Clave no encontrada" << endl;
+				}
+				Leer.close();
+			}
+			else
+			{
+				cout << "Error en archivo\n";
+			}
+			system("pause");
+}
+
+//Reporte por la edad de los clientes una edad en espesifico
+void reporte_por_edad()
+{
+	system("cls");
+	Leer.open("Pedidos.txt");
+	if (Leer.is_open())
+	{
+		Leer >> pedidos.nom_examenp;
+		bool encontrado = false;
+		cout << "Ingrese La edad que desea buscar" << endl;
+		cin >> edad_buscar;
+		cout << "********************Los Clientes con esta edad son ********************\n";
+		while (!Leer.eof())
+		{
+			Leer >> pedidos.codigo_examenp >> pedidos.precio_examenp >> pedidos.nombre_Clientep >> pedidos.id_clientep >> pedidos.edad_clientep >> pedidos.fecha_clientep;
+
+			if (pedidos.edad_clientep == edad_buscar)
+			{
+				encontrado = true;
+				cout << "=====================================================================================" << endl;
+				cout << "Nombre del examen..." << pedidos.nom_examenp << endl;
+				cout << "Clave de examen..." << pedidos.codigo_examenp << endl;
+				cout << "Precio del examen..." << pedidos.precio_examenp << endl;
+				cout << "Datos del Cliente." << endl;
+				cout << "Nombre del cliente..." << pedidos.nombre_Clientep << endl;
+				cout << "Clave del Cliente... " << pedidos.id_clientep << endl;
+				cout << "Edad del Cliente... " << pedidos.edad_clientep << endl;
+				cout << "Fecha de Nacimiento... " << pedidos.fecha_clientep << endl;
+				cout << "=====================================================================================" << endl;
+			}
+			Leer >> pedidos.nom_examenp;
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+
+
+
+
+
+
+void BuscarUsuario56()
+{
+
+	system("cls");
+	Leer.open("Clientes.txt");
+	if (Leer.is_open())
+	{
+		correcto = 0;
+		contador = 3;
+		Leer >> clientes.nombre;
+		bool encontrado = false;
+		cout << "Ingrese Su clave de Cliente" << endl;
+		cin >> Bid;
+		cout << "Ingrese la fecha de hoy (DD/MM/AAAA)" << endl;
+		cin >> diafa; cout << "/"; cin >> mesfa; cout << "/"; cin >> añofa;
+		while (!Leer.eof())
+		{
+			Leer >> clientes.id_cliente >> clientes.edad >> clientes.fecha_nacimiento >> clientes.dia >> clientes.mes >> clientes.año >> clientes.nit >> clientes.tipo_de_sangre >> clientes.alergico;
+			if (clientes.id_cliente == Bid)
+			{
+				contador++;
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << clientes.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << clientes.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << clientes.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << clientes.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << clientes.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << clientes.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << clientes.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << clientes.alergico; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador+2;
+
+				
+				gotoxy(fila, contador); cout << "Si estan correctos sus datos precione 1 si no son correctos precione 2... ";  contador++;
+				gotoxy(fila, contador); cin >> correcto;
+				cout << endl;
+
+				
+				nombrepe= clientes.nombre;
+				id_clientepe= clientes.id_cliente;
+				edadpe= clientes.edad;
+				fecha_nacimientope= clientes.fecha_nacimiento;//numero de telefono
+				diape= clientes.dia;
+				mespe= clientes.mes;
+				añope= clientes.año;
+				nitpe= clientes.nit;
+				tipo_de_sangrepe= clientes.tipo_de_sangre;
+				alergicope=clientes.alergico;//si no
+			}
+			Leer >> clientes.nombre;
+		}
+
+		if (correcto == 1)
+		{
+			// void crear factura
+			
+			numero_de_factura_pedidos++;//101
+			agregar_pedido2();
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+}
+
+void agregar_pedido2()// agrega el pedido
+{
+	
+	do
+	{
+		float suma_total = 0;
+		float suma2 = 0;
+
+		contador = 3;
+		system("cls");
+		gotoxy(fila, contador); cout << " --------------------------------------------------------------------------------------------\n"; contador++; fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8;
+		gotoxy(fila, contador); cout << "|Nombre... " << nombrepe << endl; 	contador++; fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8;
+		gotoxy(fila, contador); cout << "|Clave... " << id_clientepe << endl; contador++; fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8;
+		gotoxy(fila, contador); cout << "|Edad... " << edadpe << endl; contador++; fila = 36; contador--; contador--; contador--;
+
+		gotoxy(fila, contador); cout << "Numero de telefono... " << fecha_nacimientope << endl; contador++;
+		gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << diape << "/" << mespe << "/" << añope << endl; contador++;
+		gotoxy(fila, contador); cout << "Nit... " << nitpe; contador++; fila = 74; contador--; contador--; contador--;
+		gotoxy(fila, contador); cout << "Tipo de sangre... " << tipo_de_sangrepe; contador++;
+		gotoxy(fila, contador); cout << "Fecha... " << diafa << "/" << mesfa << "/" << añofa; contador++;
+		gotoxy(fila, contador); cout << "No. Factura... " << numero_de_factura_pedidos; contador++; fila = 8;
+		gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------------------------|\n"; contador++; 
+		gotoxy(fila, contador); cout << "|"; fila = 26;  
+
+		gotoxy(fila, contador); cout << "Nombre del Examen"; fila = 56;
+		gotoxy(fila, contador); cout << "ID Examen"; fila = 70;
+		gotoxy(fila, contador); cout << "Precio"; fila = 82;
+		gotoxy(fila, contador); cout << "# Orden"; fila = 8;  fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8; contador++;
+		gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------------------------|\n"; contador++;
+
+
+		Leer1.open("Pedidos2.txt");
+		if (Leer1.is_open())
+		{
+			Leer1 >> pedidos2.nombre;
+			bool encontrado_examen = false;
+
+			while (!Leer1.eof())
+			{
+				Leer1 >> pedidos2.id_cliente >> pedidos2.edad
+					>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+					>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+					>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+				
+				if (pedidos2.numero_de_factura1 == numero_de_factura_pedidos)
+				{
+					encontrado_examen = true;
+					fila = 8;
+					gotoxy(fila, contador); cout << "|" << pedidos2.examen << "\t"; fila = fila + 50;
+					gotoxy(fila, contador); cout << pedidos2.id_exam << "\t"; fila = fila + 13;
+					gotoxy(fila, contador); cout << pedidos2.precio_exam << "\t"; fila = fila + 13;
+					//cout << pedidos2.numero_de_factura1 << endl;
+					gotoxy(fila, contador); cout << pedidos2.numero_de_serie_pedido;  fila = 100;
+					gotoxy(fila, contador); cout << "|"; fila = 8; contador++;
+					gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------------------------|\n"; contador++;
+					suma2 = suma2 + pedidos2.precio_exam;
+				}
+				Leer1 >> pedidos2.nombre;
+			}
+
+		}
+		else
+
+		{
+			cout << "Error en archivo\n";
+		}
+		suma_total = suma_total + pedidos2.precio_exam;
+		gotoxy(fila, contador); cout << "|Total a pagar"; fila = 70;
+	
+		gotoxy(fila, contador); cout << "Q" << suma2; fila = 8;  fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8; contador++;
+		gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------------------------|\n"; contador++; contador++;
+		Leer1.close();
+
+		gotoxy(fila, contador); cout << "Para agregar examen precione .....1"; contador++;
+		gotoxy(fila, contador); cout << "Para eliminar examen precione ....2"; contador++;
+		gotoxy(fila, contador); cout << "Para anular la factura precione ..3"; contador++;
+		gotoxy(fila, contador); cout << "Para salir precione ..............4"; contador++;
+		gotoxy(fila, contador); cin >> opcion_agregar_si_no; contador = contador +2;
+		
+		switch (opcion_agregar_si_no)
+		{
+		case 1: // agregar examen
+			guardar_pedido();
+			break;
+		case 2:
+			//eliminar_numero_de_orden();
+			eliminar();//elimina una orden
+			break;
+		case 3: // eliminar examen
+			eliminar_factura();//anula la factura
+			break;
+		case 4:
+			gotoxy(fila, contador); cout << "Saliendo" << endl;
+			break;
+		default:
+
+			break;
+		}
+
+	} while (opcion_agregar_si_no != 4);
+}
+
+void guardar_pedido()
+{
+	Leer1.open("Catalogo1.txt");
+	if (Leer1.is_open())
+	{
+		Leer1 >> catalogo1.examen;
+		bool encontrado_examen = false;
+		gotoxy(fila, contador); cout << "Ingrese el codigo del examen que se quiere realizar... ";
+		gotoxy(64, contador); cin >> cod_exam_buscar; contador++; contador++;
+
+
+		while (!Leer1.eof())
+		{
+			Leer1 >> catalogo1.id_exam >> catalogo1.precio_exam;
+			if (catalogo1.id_exam == cod_exam_buscar)
+			{
+				encontrado_examen = true;
+				gotoxy(fila, contador); cout << "***** El examen que se desea relir es el siguiente *****"; contador++;
+				gotoxy(fila, contador); cout << "Nombre de Examen ... " << catalogo1.examen; contador++;
+				gotoxy(fila, contador); cout << "Clave del Examen ... " << catalogo1.id_exam; contador++;
+				gotoxy(fila, contador); cout << "Precio del Examen ... Q" << catalogo1.precio_exam; contador++;
+				gotoxy(fila, contador); cout << "Si desea realizarse este examen precione 1 de lo contrario precione 2"; contador++;
+				gotoxy(fila, contador); cin >> opcion_pedidos; contador++; contador++;
+
+				if (opcion_pedidos == 1)
+				{
+
+					numero_de_serie_pedido2++;
+					pedidos2.numero_de_serie_pedido = numero_de_serie_pedido2;
+					pedidos2.numero_de_factura1 = numero_de_factura_pedidos;
+					pedidos2.nombre = nombrepe;
+					pedidos2.id_cliente = id_clientepe;
+					pedidos2.edad = edadpe;
+					pedidos2.fecha_nacimiento = fecha_nacimientope;
+					pedidos2.dia = diape;
+					pedidos2.mes = mespe;
+					pedidos2.año = añope;
+					pedidos2.nit = nitpe;
+					pedidos2.tipo_de_sangre = tipo_de_sangrepe;
+					pedidos2.alergico = alergicope;
+					pedidos2.diape = diafa;
+					pedidos2.mespe = mesfa;
+					pedidos2.añope = añofa;
+
+					Guardar.open("Pedidos2.txt", ios::app);
+					if (Guardar.is_open())
+					{
+						Guardar << pedidos2.nombre << "\t" << pedidos2.id_cliente << "\t" << pedidos2.edad << "\t"
+							<< pedidos2.fecha_nacimiento << "\t" << pedidos2.dia << "\t" << pedidos2.mes << "\t"
+							<< pedidos2.año << "\t" << pedidos2.nit << "\t" << pedidos2.tipo_de_sangre << "\t" << pedidos2.alergico << "\t" << catalogo1.examen << "\t" << catalogo1.id_exam << "\t" << catalogo1.precio_exam << "\t" << pedidos2.numero_de_factura1
+							<< "\t" << pedidos2.numero_de_serie_pedido << "\t" << pedidos2.diape << "\t" << pedidos2.mespe << "\t" << pedidos2.añope << endl;
+						gotoxy(fila, contador); cout << " . . . . Pedido agregado. . . . \n\n";
+					}
+				}
+				else
+				{
+					gotoxy(fila, contador); cout << "Pedido Eliminado" << endl;
+				}
+
+			}
+			Leer1 >> catalogo1.examen;
+		}
+
+		if (encontrado_examen == false)
+		{
+			gotoxy(fila, contador); cout << "Codigo de examen no encontrado\t Intente de nuevo" << endl;
+		}
+	}
+	else
+	{
+		gotoxy(fila, contador); cout << "Error en archivo\n";
+	}//
+	Leer1.close();
+	Guardar.close();
+}
+
+void  contador_factura()
+{
+	numero_de_factura_pedidos = 100;
+	numero_de_serie_pedido2 = 10;
+	Leer.open("pedidos2.txt", ios::in);
+	if (Leer.is_open()) {
+		string linea;
+		while (getline(Leer, linea))
+		{
+			numero_de_factura_pedidos++;
+			numero_de_serie_pedido2++;
+		}
+		Leer.close();
+	}
+}
+
+// No sirve
+void eliminar_numero_de_orden()
+{
+	Leer.open("pedidos2.txt");
+	Temp.open("Temp.txt");
+	if (Leer.is_open() && Temp.is_open())
+	{
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		gotoxy(fila, contador); cout << "Ingrese clave a eliminar... "; contador++;
+		gotoxy(fila, contador); cin >> Bid; contador++;
+
+		while (!Leer.eof())
+		{
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+
+			if (pedidos2.numero_de_serie_pedido == Bid)
+			{
+				encontrado = true;
+				contador++;
+				gotoxy(fila, contador); cout << "................Eliminado................" << endl; contador++;
+			}
+			else
+			{
+				Temp << pedidos2.id_cliente << "\t" << pedidos2.edad << "\t"
+					<< pedidos2.fecha_nacimiento << "\t" << pedidos2.dia << "\t" << pedidos2.mes << "\t"
+					<< pedidos2.año << "\t" << pedidos2.nit << "\t" << pedidos2.tipo_de_sangre << "\t" << pedidos2.alergico << "\t" << pedidos2.examen << "\t" << pedidos2.id_exam << "\t" << pedidos2.precio_exam << "\t" << pedidos2.numero_de_factura1 << "\t"
+					<< pedidos2.numero_de_serie_pedido << "\t" << pedidos2.diape << "\t"  << pedidos2.mespe << "\t" << pedidos2.añope << endl;
+			}
+			Leer >> pedidos2.nombre;
+
+		}
+
+		if (encontrado == false)
+		{
+			gotoxy(fila, contador); cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+		Temp.close();
+		remove("pedidos2.txt");
+		rename("Temp.txt", "pedidos2.txt");
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+void eliminar()
+{
+	leerarchivo_2();
+	Leer.open("pedidos2.txt");
+	Temp.open("Temp.txt");
+	if (Leer.is_open() && Temp.is_open())
+	{
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		gotoxy(fila, contador); cout << "Ingrese el # Orden que desea eliminar... "; cin >> Bid; cout << endl << endl;
+
+		while (!Leer.eof())
+		{
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+
+			if (pedidos2.numero_de_serie_pedido == Bid)
+			{
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << pedidos2.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << pedidos2.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << pedidos2.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << pedidos2.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << pedidos2.dia << "/" << pedidos2.mes << "/" << pedidos2.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << pedidos2.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << pedidos2.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << pedidos2.alergico; contador++;
+				gotoxy(fila, contador); cout << "Nombre examen... " << pedidos2.examen; contador++;
+				gotoxy(fila, contador); cout << "ID EXAMEN... " << pedidos2.id_exam; contador++;
+				gotoxy(fila, contador); cout << "Precio exmamen... " << pedidos2.precio_exam; contador++;
+				gotoxy(fila, contador); cout << "Numero de factura... " << pedidos2.numero_de_factura1; contador++;
+				gotoxy(fila, contador); cout << "# de Orden... " << pedidos2.numero_de_serie_pedido; contador++;
+				gotoxy(fila, contador); cout << "Fecha... " << pedidos2.diape << "/" << pedidos2.mespe << "/" << pedidos2.añope; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador++;
+				gotoxy(fila, contador); cout << "Eliminado..." << endl; contador++;
+			
+			}
+			else
+			{
+				Temp << pedidos2.nombre << "\t"<< pedidos2.id_cliente << "\t" << pedidos2.edad << "\t"
+					<< pedidos2.fecha_nacimiento << "\t" << pedidos2.dia << "\t" << pedidos2.mes << "\t"
+					<< pedidos2.año << "\t" << pedidos2.nit << "\t" << pedidos2.tipo_de_sangre << "\t" << pedidos2.alergico << "\t" << pedidos2.examen << "\t" << pedidos2.id_exam << "\t" << pedidos2.precio_exam << "\t" << pedidos2.numero_de_factura1 << "\t"
+					<< pedidos2.numero_de_serie_pedido << "\t" <<pedidos2.diape << "\t" << pedidos2.mespe << "\t" << pedidos2.añope << endl;
+			}
+			Leer >> pedidos2.nombre;
+
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+		Temp.close();
+		remove("pedidos2.txt");
+		rename("Temp.txt", "pedidos2.txt");
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+}
+
+void eliminar_factura()
+{
+	leerarchivo_2();
+	Leer.open("pedidos2.txt");
+	Temp.open("Temp.txt");
+	if (Leer.is_open() && Temp.is_open())
+	{
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		gotoxy(fila, contador); cout << "Ingrese el -No. de Factura- para anularla... "; cin >> Bid; cout << endl << endl;
+
+		while (!Leer.eof())
+		{
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+
+			if (pedidos2.numero_de_factura1 == Bid)
+			{
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << pedidos2.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << pedidos2.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << pedidos2.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << pedidos2.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << pedidos2.dia << "/" << pedidos2.mes << "/" << pedidos2.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << pedidos2.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << pedidos2.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << pedidos2.alergico; contador++;
+				gotoxy(fila, contador); cout << "Nombre examen... " << pedidos2.examen; contador++;
+				gotoxy(fila, contador); cout << "ID EXAMEN... " << pedidos2.id_exam; contador++;
+				gotoxy(fila, contador); cout << "Precio exmamen... " << pedidos2.precio_exam; contador++;
+				gotoxy(fila, contador); cout << "Numero de factura... " << pedidos2.numero_de_factura1; contador++;
+				gotoxy(fila, contador); cout << "# de Orden... " << pedidos2.numero_de_serie_pedido; contador++;
+				gotoxy(fila, contador); cout << "-----------------------------------------------------------------------\n"; contador++;
+				gotoxy(fila, contador); cout << "Eliminado..." << endl; contador++;
+			}
+			else
+			{
+				Temp << pedidos2.nombre << "\t" << pedidos2.id_cliente << "\t" << pedidos2.edad << "\t"
+					<< pedidos2.fecha_nacimiento << "\t" << pedidos2.dia << "\t" << pedidos2.mes << "\t"
+					<< pedidos2.año << "\t" << pedidos2.nit << "\t" << pedidos2.tipo_de_sangre << "\t" << pedidos2.alergico << "\t" << pedidos2.examen << "\t" << pedidos2.id_exam << "\t" << pedidos2.precio_exam << "\t" << pedidos2.numero_de_factura1 << "\t"
+					<< pedidos2.numero_de_serie_pedido << "\t" << pedidos2.diape << "\t" << pedidos2.mespe << "\t" << pedidos2.añope << endl;
+			}
+			Leer >> pedidos2.nombre;
+
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+		Temp.close();
+		remove("pedidos2.txt");
+		rename("Temp.txt", "pedidos2.txt");
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+}
+
+void leerarchivo_2()
+{
+	Leer.open("pedidos2.txt", ios::in);
+	if (Leer.is_open()) {
+		string linea;
+		while (getline(Leer, linea))
+		{
+
+		}
+		Leer.close();
+	}
+}
+
+void mostrar_expediente()
+{
+	/*
+	system("cls");
+	Leer.open("pedidos2.txt");
+	if (Leer.is_open())
+	{
+		correcto = 0;
+		
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		cout << "Ingrese Su clave de Cliente" << endl;
+		cin >> Bid;
+		while (!Leer.eof())
+		{
+			contador = 30;
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+			if (clientes.id_cliente == Bid)
+			{
+				contador++;
+				encontrado = true;
+				gotoxy(fila, contador); cout << " --------------------------------------------------------------------------------------------\n"; contador++; fila = 100;
+				gotoxy(fila, contador); cout << "|No. Factura... " << pedidos2.numero_de_factura1; contador++; fila = 8;
+				gotoxy(fila, contador); cout << "|Nombre del Examen" << pedidos2.examen; contador++;
+				gotoxy(fila, contador); cout << "|ID Examen" << pedidos2.id_exam; fila = 45; contador--; contador--;
+				gotoxy(fila, contador); cout << "Precio" << pedidos2.precio_exam; fila = 100;
+				gotoxy(fila, contador); cout << "|"; contador++; fila = 45;
+				gotoxy(fila, contador); cout << "# Orden" << pedidos2.numero_de_serie_pedido;  fila = 100;
+				gotoxy(fila, contador); cout << "|"; fila = 8; contador++;
+				gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------------------------|\n"; contador++;
+
+				nombrepe = pedidos2.nombre;
+				id_clientepe = pedidos2.numero_de_serie_pedido;
+				edadpe = pedidos2.precio_exam;
+				fecha_nacimientope = pedidos2.fecha_nacimiento;//numero de telefono
+				diape = pedidos2.numero_de_serie_pedido;
+				mespe = pedidos2.numero_de_serie_pedido;
+				añope = pedidos2.numero_de_serie_pedido;
+				nitpe = pedidos2.nit;
+				tipo_de_sangrepe = pedidos2.tipo_de_sangre;
+				diafa = pedidos2.diape;
+				mesfa = pedidos2.mespe;
+				añofa = pedidos2.añope;
+			}
+			Leer >> pedidos2.nombre;
+		}
+
+		contador = 3;
+		gotoxy(fila, contador); cout << "|Nombre... " << nombrepe << endl; 	contador++; fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8;
+		gotoxy(fila, contador); cout << "|Clave... " << id_clientepe << endl; contador++; fila = 100;
+		gotoxy(fila, contador); cout << "|"; fila = 8;
+		gotoxy(fila, contador); cout << "|Edad... " << edadpe << endl; contador++; fila = 36; contador--; contador--; contador--;
+
+		gotoxy(fila, contador); cout << "Numero de telefono... " << fecha_nacimientope << endl; contador++;
+		gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << diape << "/" << mespe << "/" << añope << endl; contador++;
+		gotoxy(fila, contador); cout << "Nit... " << nitpe; contador++; fila = 74; contador--; contador--; contador--;
+		gotoxy(fila, contador); cout << "Tipo de sangre... " << tipo_de_sangrepe; contador++;
+		gotoxy(fila, contador); cout << "Fecha... " << diafa << "/" << mesfa << "/" << añofa; contador++;
+		system("pause");
+		if (correcto == 1)
+		{
+			// void crear factura
+
+			numero_de_factura_pedidos++;//101
+			agregar_pedido2();
+		}
+
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	*/
+
+	system("cls");
+	Leer.open("pedidos2.txt");
+	if (Leer.is_open())
+	{
+		contador = 3;
+		Leer >> pedidos2.nombre;
+		bool encontrado = false;
+		gotoxy(fila, contador); cout << "Ingrese clave a buscar" << contador++;
+		gotoxy(fila, contador); cin >> Bid; contador++; contador++;
+		while (!Leer.eof())
+		{
+			Leer >> pedidos2.id_cliente >> pedidos2.edad
+				>> pedidos2.fecha_nacimiento >> pedidos2.dia >> pedidos2.mes
+				>> pedidos2.año >> pedidos2.nit >> pedidos2.tipo_de_sangre >> pedidos2.alergico >> pedidos2.examen >> pedidos2.id_exam >> pedidos2.precio_exam >> pedidos2.numero_de_factura1
+				>> pedidos2.numero_de_serie_pedido >> pedidos2.diape >> pedidos2.mespe >> pedidos2.añope;
+			if (pedidos2.id_cliente == Bid)
+			{
+				contador++;
+
+
+				encontrado = true;
+				gotoxy(fila, contador); cout << "Nombre... " << pedidos2.nombre << endl; 	contador++;
+				gotoxy(fila, contador); cout << "Clave... " << pedidos2.id_cliente << endl; contador++;
+				gotoxy(fila, contador); cout << "Edad... " << pedidos2.edad << endl; contador++;
+				gotoxy(fila, contador); cout << "Numero de telefono... " << pedidos2.fecha_nacimiento << endl; contador++;
+				gotoxy(fila, contador); cout << "Fecha de Nacimiento... " << pedidos2.dia << "/" << clientes.mes << "/" << clientes.año << endl; contador++;
+				gotoxy(fila, contador); cout << "Nit... " << pedidos2.nit; contador++;
+				gotoxy(fila, contador); cout << "Tipo de sangre... " << pedidos2.tipo_de_sangre; contador++;
+				gotoxy(fila, contador); cout << "Alergias... " << pedidos2.alergico; contador++;
+				contador = 5;
+				fila = 2;
+				gotoxy(fila, contador); cout << " -------------------------------------------------------------------------"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|                                                                         |"; contador++;
+				gotoxy(fila, contador); cout << "|-------------------------------------------------------------------------"; contador++;
+
+
+			}
+			Leer >> pedidos2.nombre;
+		}
+		gotoxy(fila, contador); system("pause");
+		if (encontrado == false)
+		{
+			cout << "Clave no encontrada" << endl;
+		}
+		Leer.close();
+	}
+	else
+	{
+		cout << "Error en archivo\n";
+	}
+	system("pause");
+}
+
+// lee los pedidos
+void mostrar_medidos56()
+{
+	Leer.open("pedidos2.txt", ios::in);
+	if (Leer.is_open()) {
+		string linea;
+		while (getline(Leer, linea))
+		{
+			cout << linea << endl;
+		}
+		Leer.close();
+	}
+	system("pause");
+}

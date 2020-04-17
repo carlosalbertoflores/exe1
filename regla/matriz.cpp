@@ -1,0 +1,28 @@
+#include<iostream>
+#include<conio.h>
+using namespace std ;
+ int dato[100][100], f=4,c=4;
+ string nombre;
+int main ()
+{
+
+ for(int i=0; i<f; ++i)
+    {
+
+        for(int j=0; j<c; ++j)
+        {
+              cout<<"digite un numeros["<<i<<"]["<<j<<"]";
+            cin>>dato[i][j];
+
+        }
+
+    }
+      for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+                cout<<dato[i][j];
+        }
+cout<<"\n"<<endl;
+    }
+return 0;
+    }
+

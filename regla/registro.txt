@@ -1,0 +1,6 @@
+datos de persanales empleado
+carlos	mas		212323	21	
+
+
+datos de empleado
+0001	22320	it	232	

@@ -1,0 +1,6 @@
+datos de persanales empleado
+carlos	m		0	0	
+
+
+datos de empleado
+				
